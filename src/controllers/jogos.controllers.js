@@ -14,9 +14,13 @@ export async function inserirJogo(req, res){
 
     const {name, image, stockTotal, pricePerDay} = req.body
 
-    const jogoExistente = await db.query (`SELECT * FROM games WHERE name =$1`, [name])
+    if (name === '') return res.status(400).send("O nome do jogo não pode estar vazio")
 
-    if(!jogoExistente.rows) return res.sendStatus(409)
+    if (stockTotal <= 0 || pricePerDay <= 0) return res.status(400)
+    .send("O estoque ou o preço não podem ser menores que 0")
+    
+    const nameExistente = await db.query (`SELECT * FROM games WHERE name = $1;`, [name])
+    if (nameExistente.rows.length) return res.status(409).send("Jogo já existente, escolha outro nome")
 
     try {
         await db.query(`INSERT INTO games (name, image, "stockTotal", "pricePerDay") VALUES ($1, $2, $3, $4);`, 
