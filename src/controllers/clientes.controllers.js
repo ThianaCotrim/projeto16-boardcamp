@@ -42,7 +42,7 @@ export async function inserirClientes(req, res){
         return res.sendStatus(201)
 
     } catch (err){
-        res.status(400).send(err.message)
+        res.status(400).send(err.message);
     }
 }
 
