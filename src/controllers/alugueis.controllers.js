@@ -41,6 +41,11 @@ export async function apagarAlugueis(req, res){
     if(!rental.rows.length === 0) return res.status(404).send("Aluguel não encontrado")
     if(rental.rows[0].returnDate !== null) return res.status(400).send("Aluguel já foi finalizado")
     
+    try {
         await db.query(`DELETE FROM rentals WHERE id=$1`, [id])
         return res.status(200).send("Aluguel excluído com sucesso")
+    } catch (err){
+        return res.status(400).send(err.message)
+    }
+        
 }
