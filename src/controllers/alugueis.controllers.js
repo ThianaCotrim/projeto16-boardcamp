@@ -35,13 +35,13 @@ export async function finalizarAlugueis(req, res){
 
 export async function apagarAlugueis(req, res){
     const {id} = req.params
-
-    const rental = await db.query(`SELECT * FROM rentals WHERE id=$1`, [id])
-
-    if(!rental.rows.length === 0) return res.status(404).send("Aluguel não encontrado")
-    if(rental.rows[0].returnDate !== null) return res.status(400).send("Aluguel já foi finalizado")
     
     try {
+        const rental = await db.query(`SELECT * FROM rentals WHERE id=$1`, [id])
+
+        if(!rental.rows) return res.status(404).send("Aluguel não encontrado")
+        if(rental.rows[0].returnDate !== null) return res.status(400).send("Aluguel já foi finalizado") 
+
         await db.query(`DELETE FROM rentals WHERE id=$1`, [id])
         return res.status(200).send("Aluguel excluído com sucesso")
     } catch (err){
