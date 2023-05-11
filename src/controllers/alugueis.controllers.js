@@ -20,7 +20,7 @@ export async function inserirAlugueis(req, res){
 
     if (!daysRented <= 0) return res.status(400).send("O número de dias deve ser inteiro e maior que 0")
 
-     try{
+    
         const rentDate = dayjs(Date.now()).format('YYYY-MM-DD')
         const originalPrice = daysRented * game.rows[0].pricePerDay
 
@@ -28,9 +28,6 @@ export async function inserirAlugueis(req, res){
             VALUES ($1, $2, $3, $4, $5, $6, $7)`,
             [custumerId, gameId, rentDate, daysRented, null, originalPrice, null])
             return res.sendStatus(201)
-     } catch (err) {
-        res.sendStatus(400)
-     }
 }
 
 export async function finalizarAlugueis(req, res){
