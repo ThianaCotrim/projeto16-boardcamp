@@ -56,7 +56,7 @@ export async function editClientesById(req, res){
 
     if (name === '') return res.status(400).send("O nome do cliente não pode estar vazio")
 
-    const cpfExistente = await db.query (`SELECT * FROM customers WHERE cpf = $1;`, [cpf])
+    const cpfExistente = await db.query (`SELECT * FROM customers WHERE cpf = $1 AND id != $2;`, [cpf, id])
     if (cpfExistente.rows.length) return res.status(409).send("CPF já existente, escolha outro cpf")
 
     try{
@@ -64,14 +64,8 @@ export async function editClientesById(req, res){
 
         await db.query(`UPDATE customers SET name=$1, phone=$2, cpf=$3, birthday=$4 WHERE id=$5`,
          [name, phone, cpf, birthday, id])
-        return res.send("Cliente atualizado com sucesso")
+        return res.status(200).send("Cliente atualizado com sucesso")
     } catch (err){
         res.status(400).send("Erro ao atualizar cliente")
     }
-
-    
-    
-
-
-    res.send("editClientesById")
 }
