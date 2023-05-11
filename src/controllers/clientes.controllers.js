@@ -42,7 +42,7 @@ export async function inserirClientes(req, res){
         return res.sendStatus(201)
 
     } catch (err){
-        res.status(500).send(err.message)
+        res.status(400).send(err.message)
     }
 }
 
@@ -56,6 +56,9 @@ export async function editClientesById(req, res){
 
     if (name === '') return res.status(400).send("O nome do cliente não pode estar vazio")
 
+    const cpfExistente = await db.query (`SELECT * FROM customers WHERE cpf = $1;`, [cpf])
+    if (cpfExistente.rows.length) return res.status(409).send("CPF já existente, escolha outro cpf")
+
     try{
         await db.query(`SELECT * FROM customers WHERE id=$1;`, [id])
 
@@ -63,7 +66,7 @@ export async function editClientesById(req, res){
          [name, phone, cpf, birthday, id])
         return res.send("Cliente atualizado com sucesso")
     } catch (err){
-        res.status(500).send("Erro ao atualizar cliente")
+        res.status(400).send("Erro ao atualizar cliente")
     }
 
     

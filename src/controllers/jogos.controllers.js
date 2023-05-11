@@ -27,7 +27,7 @@ export async function inserirJogo(req, res){
         [name, image, stockTotal, pricePerDay])
         return res.sendStatus(201)
     } catch (err){
-        res.status(500).send(err.message)
+        res.status(400).send(err.message)
     }
     
 }
