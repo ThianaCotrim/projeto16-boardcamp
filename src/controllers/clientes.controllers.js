@@ -50,6 +50,12 @@ export async function editClientesById(req, res){
     const {id} = req.params
     const {name, phone, cpf, birthday} = req.body
 
+    if (!/^\d{11}$/.test(cpf)) return res.status(400).send("O cpf deve conter 11 caracteres")
+
+    if (!/^\d{10,11}$/.test(phone)) return res.status(400).send("O phone deve ter entre 10 e 11 caracteres")
+
+    if (name === '') return res.status(400).send("O nome do cliente não pode estar vazio")
+
     try{
         await db.query(`SELECT * FROM customers WHERE id=$1;`, [id])
 
