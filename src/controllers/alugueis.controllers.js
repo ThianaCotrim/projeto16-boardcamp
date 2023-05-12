@@ -56,7 +56,30 @@ export async function inserirAlugueis(req, res){
 }
 
 export async function finalizarAlugueis(req, res){
-    res.send("finalizarAlugueis")
+    const {id} = req.params
+
+    const rental = await db.query(`SELECT * FROM rentals WHERE id=$1;`, [id])
+
+    if(rental.rows.length === 0) return res.sendStatus(404)
+    if(rental.rows[0].returnDate !== null) return res.sendStatus(400)
+
+    const rentDate = rental.rows[0].rentDate
+    const returnDate = dayjs().format("YYYY/MM/DD")
+    const days = (new Date(returnDate) - new Date(rentDate)) / (1000 * 60 * 60 * 24)
+
+    const daysRented = rental.rows[0].daysRented
+    
+    let multiplica = 0
+    if (daysRented < days) multiplica = days - daysRented
+
+    const delayFee = multiplica * (rental.rows[0].originalPrice / daysRented)
+
+    try {
+        await db.query(`UPDATE rentals SET "returnDate"=$1, "delayFee"=$2 WHERE id=$3;`, [returnDate, delayFee, id])
+        res.status(200).send("Aluguel Finalizado com sucesso")
+    } catch (err){
+        res.sendStatus(500)
+    }
 }
 
 export async function apagarAlugueis(req, res){
@@ -67,7 +90,10 @@ export async function apagarAlugueis(req, res){
     if(rental.rows.length === 0) return res.status(404).send("Aluguel não encontrado")
     if(rental.rows[0].returnDate === null) return res.status(400).send("Aluguel já foi finalizado") 
   
-    await db.query(`DELETE FROM rentals WHERE id=$1`, [id])
-    return res.status(200).send("Aluguel excluído com sucesso")
-        
+    try {
+        await db.query(`DELETE FROM rentals WHERE id=$1`, [id])
+        return res.status(200).send("Aluguel excluído com sucesso")
+    } catch (err){
+        res.status(500).send(err.message)
+    } 
 }

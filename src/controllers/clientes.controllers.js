@@ -29,7 +29,7 @@ export async function getClientesById(req, res){
         users.rows[0].birthday = dataFormatada
         res.send(users.rows[0])
     } catch(err){
-        return res.status(500).send(err.message)
+        return res.sendStatus(err.message);
     }
 }
 
