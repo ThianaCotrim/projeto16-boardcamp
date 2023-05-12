@@ -2,7 +2,33 @@ import dayjs from "dayjs"
 import { db } from "../database/database.connection.js"
 
 export async function getAlugueis(req, res){
-    res.send("getAlugueis")
+    const games = await db.query(`SELECT * FROM games`)
+    const customers = await db.query(`SELECT * FROM customers`)
+
+    try {
+
+        const rentals = await db.query(`SELECT rentals.* FROM rentals;`)
+
+        const rentalRes = rentals.rows.map(r => {
+            const cust = customers.rows.find(cust => cust.id === r.customerId)
+            const game = games.rows.find(game => game.id === r.gameId)
+
+            return {
+                ...r, 
+                customer: {
+                    id: cust.id,
+                    name: cust.name
+                },
+                game: {
+                    id: game.id,
+                    name: game.name
+                }
+            }
+        })
+        return res.send(rentalRes)
+    } catch (err){
+        return res.status(500).send(err.message)
+    }
 }
 
 export async function inserirAlugueis(req, res){
@@ -43,8 +69,5 @@ export async function apagarAlugueis(req, res){
   
     await db.query(`DELETE FROM rentals WHERE id=$1`, [id])
     return res.status(200).send("Aluguel excluído com sucesso")
-   
-       
-    
         
 }
