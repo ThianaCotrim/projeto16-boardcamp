@@ -19,7 +19,7 @@ export async function getClientes(req, res){
 export async function getClientesById(req, res){
     const {id} = req.params
 
-    try{
+   
         const users = await db.query(`SELECT * FROM customers WHERE id=$1;`, [id])
 
         if(users.rows.length === 0) return res.status(404).send("Esse id não existe")
@@ -27,9 +27,12 @@ export async function getClientesById(req, res){
         const data = new Date (users.rows[i].birthday)
         const dataFormatada = data.toISOString().substring(0,10)
         users.rows[0].birthday = dataFormatada
-        res.send(users.rows[0])
+        try{
+            
+        return res.send(users.rows[0])
+
     } catch(err){
-        return res.sendStatus(err.message);
+        res.status(500).send(err.message);
     }
 }
 
